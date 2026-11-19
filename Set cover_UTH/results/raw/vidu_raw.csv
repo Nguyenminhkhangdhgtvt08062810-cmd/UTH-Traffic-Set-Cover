@@ -1,0 +1,10 @@
+instance,algorithm,params,seed,best_value,time_s,time_to_best_s,evaluations,feasible
+vidu,SA,"T0=100.0,rate=0.99,iter=5000",42,16,0.005973,9.1e-05,918,1
+vidu,TS,tenure=2;max_iter=50000,42,16,0.267277,0.000274,300001,1
+vidu,GA,pop=50;gen=1000;mut=0.0500,42,16,0.009121,0.001689,1300,1
+vidu,SA,"T0=100.0,rate=0.99,iter=5000",100,16,0.010622,1.2e-05,918,1
+vidu,TS,tenure=2;max_iter=50000,100,16,0.272499,0.000188,300001,1
+vidu,GA,pop=50;gen=1000;mut=0.0500,100,16,0.011232,0.001923,1300,1
+vidu,SA,"T0=100.0,rate=0.99,iter=5000",2026,16,0.007729,0.000101,918,1
+vidu,TS,tenure=2;max_iter=50000,2026,16,0.297149,0.000173,300001,1
+vidu,GA,pop=50;gen=1000;mut=0.0500,2026,16,0.010659,0.002075,1300,1
