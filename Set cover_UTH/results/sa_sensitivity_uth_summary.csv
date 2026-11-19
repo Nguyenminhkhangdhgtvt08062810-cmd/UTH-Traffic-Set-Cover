@@ -1,0 +1,10 @@
+﻿parameter,value,runs,best_cost,mean_cost,std_cost,worst_cost,mean_cameras,mean_runtime_seconds,feasible_runs
+initial_temp,2.0,10,80,80.4,0.5164,81,14.4,0.042381,10
+initial_temp,10.0,10,81,81,0.0,81,15,0.052419,10
+initial_temp,50.0,10,80,80.3,0.483,81,14.3,0.063635,10
+cooling_rate,0.95,10,81,81,0.0,81,15,0.009824,10
+cooling_rate,0.99,10,81,81,0.0,81,15,0.049528,10
+cooling_rate,0.995,10,80,80.2,0.4216,81,14.2,0.09358,10
+max_iterations,100,10,81,82.6,1.3499,85,15,0.007334,10
+max_iterations,400,10,81,81,0.0,81,15,0.027851,10
+max_iterations,1000,10,81,81,0.0,81,15,0.047487,10
