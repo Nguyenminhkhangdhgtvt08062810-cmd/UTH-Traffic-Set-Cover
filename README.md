@@ -1,126 +1,144 @@
-# Giải Bài Toán Set Cover (SCP) Ứng Dụng Bố Trí Camera Giám Sát Giao Thông Khu Vực UTH
+# BỐ TRÍ CAMERA GIÁM SÁT GIAO THÔNG KHU VỰC UTH BẰNG BÀI TOÁN SET COVER
 
-## 1. Thông Tin Nhóm & Phân Công Công Việc
-* **Môn học:** Phân tích Thiết kế Giải thuật — Đề bài tập lớn: Bài toán NP-khó và Metaheuristic
-* **Giảng viên hướng dẫn:** Nguyễn Văn Huy
-* **Danh sách thành viên & phân công tóm tắt:**
+**Bài tập lớn – Đề tài 10: Bài toán NP-khó và Metaheuristic**  
+**Giảng viên hướng dẫn:** Nguyễn Văn Huy
 
-| STT | Họ và tên | MSSV | Vai trò & Nhiệm vụ chính | Tỷ lệ đóng góp |
-| :---: | :--- | :---: | :--- | :---: |
-| 1 | **Nguyễn Minh Khang** | 087205008666 | Thiết kế mô hình toán học, cài đặt thuật toán chính xác (B&B), SA, hệ thống chạy thực nghiệm tự động, trực quan hóa web & tổng hợp báo cáo | 34% |
-| 2 | **Trần Thùy Linh** | 075305003441 | Cài đặt thuật toán Tabu Search (TS), khảo sát độ nhạy tham số TS, kiểm thử tính hợp lệ nghiệm (`kiemtra.py`) & biên soạn tài liệu | 33% |
-| 3 | **Nông Đức Huy** | 070206002093 | Cài đặt thuật toán Genetic Algorithm (GA), tiền xử lý dữ liệu bản đồ thực tế UTH từ OpenStreetMap, khảo sát độ nhạy GA & vẽ biểu đồ | 33% |
+## 1. Giới thiệu đề tài
 
----
+Dự án giải quyết bài toán lựa chọn vị trí lắp đặt camera giám sát giao thông tại khu vực Trường Đại học Giao thông vận tải Thành phố Hồ Chí Minh (UTH). Các nút giao hoặc đoạn đường cần quan sát được mô hình hóa thành những phần tử cần bao phủ; mỗi vị trí lắp camera ứng viên có phạm vi quan sát và chi phí tương ứng.
 
-## 2. Cấu Trúc Thư Mục Dự Án
+Bài toán được biểu diễn dưới dạng **Weighted Set Cover (bài toán phủ tập có trọng số)**, với mục tiêu tìm tập camera có **tổng chi phí nhỏ nhất có thể** và vẫn **bao phủ 100% các vị trí cần giám sát**. Dự án triển khai các thuật toán giải, thực hiện thực nghiệm trên nhiều bộ dữ liệu và xây dựng giao diện Web để minh họa kết quả trên bản đồ.
+
+## 2. Thành viên và phân công công việc
+
+| STT | Họ và tên | MSSV | Nội dung công việc | Mức độ tham gia |
+|:---:|---|:---:|---|:---:|
+| 1 | **Nguyễn Minh Khang** | 087205008666 | Xây dựng mô hình toán học Weighted Set Cover; triển khai Greedy, Branch and Bound và **Tabu Search (TS)**; thực nghiệm và khảo sát độ nhạy TS; xây dựng hệ thống chạy thực nghiệm; phụ trách **Backend**, kết nối thuật toán với giao diện Web. | **100%** |
+| 2 | **Trần Thùy Linh** | 075305003441 | Triển khai **Simulated Annealing (SA)**; chạy thực nghiệm, khảo sát độ nhạy tham số và xây dựng biểu đồ hội tụ SA; thu thập, xử lý dữ liệu **OpenStreetMap (OSM)** khu vực UTH; xây dựng dữ liệu nút giao, vị trí camera ứng viên, ma trận bao phủ và **trực quan hóa bản đồ giao thông**. | **100%** |
+| 3 | **Nông Đức Huy** | 070206002093 | Triển khai **Genetic Algorithm (GA)**; chạy thực nghiệm, khảo sát độ nhạy và xây dựng biểu đồ GA; phụ trách **Frontend**, hiển thị thông tin camera và kết quả giải, xây dựng chức năng so sánh thuật toán trên Web; hỗ trợ kiểm thử và đánh giá kết quả. | **100%** |
+
+**Công việc chung:** Các thành viên phối hợp kiểm tra tính hợp lệ của nghiệm, phân tích kết quả, hoàn thiện báo cáo và chuẩn bị thuyết trình.
+
+## 3. Các thuật toán được triển khai
+
+| Thuật toán | Mục đích |
+|---|---|
+| **Greedy (tham lam)** | Tạo nghiệm ban đầu nhanh; dùng làm phương án tham chiếu. |
+| **Branch and Bound (B&B)** | Tìm nghiệm tối ưu đối với các trường hợp có quy mô phù hợp. |
+| **First Improvement** | Cải thiện nghiệm bằng cách nhận phương án tốt hơn đầu tiên tìm được. |
+| **Best Improvement** | Tìm phương án cải thiện tốt nhất trong lân cận được xét. |
+| **Simulated Annealing (SA)** | Khám phá không gian nghiệm bằng cơ chế chấp nhận có kiểm soát những bước đi kém hơn. |
+| **Genetic Algorithm (GA)** | Tìm kiếm nghiệm dựa trên quần thể và các phép toán di truyền. |
+| **Tabu Search (TS)** | Sử dụng bộ nhớ Tabu để hạn chế lặp lại và mở rộng tìm kiếm. |
+
+**SA, GA và TS** là ba thuật toán Metaheuristic chính được thực nghiệm và so sánh. Giao diện Web hỗ trợ sáu phương pháp: Greedy, First Improvement, Best Improvement, SA, GA và TS; B&B được kiểm tra bằng chương trình riêng.
+
+## 4. Cấu trúc thư mục
 
 ```text
 UTH-Traffic-Set-Cover/
-├── README.md                        # Hướng dẫn cài đặt, chạy và tái lập kết quả
-├── Set Cover_UTH/
-│   ├── algorithms/                  # Mã nguồn các thuật toán (EXACT, GREEDY, SA, TS, GA)
-│   │   ├── branch_and_bound.py      # Thuật toán Nhánh cận (EXACT)
-│   │   ├── greedy.py                # Giải thuật Tham lam & khử dư thừa (GREEDY)
-│   │   ├── simulated_annealing.py   # Thuật toán Luyện kim mô phỏng (SA)
-│   │   ├── tabu_search.py           # Thuật toán Tìm kiếm Tabu (TS)
-│   │   └── genetic_algorithm.py     # Thuật toán Di truyền (GA)
-│   ├── data/                        # Dữ liệu đầu vào theo chuẩn OR-Library
-│   │   ├── sample/                  # Ví dụ nhỏ trong đề (vidu.txt)
-│   │   ├── generated/               # Dữ liệu tự sinh (sc_10_10 -> sc_30_30)
-│   │   ├── osm/                     # Dữ liệu giao thông thực tế khu vực UTH (uth_setcover.txt)
-│   │   └── orlib/                   # Bộ dữ liệu chuẩn OR-Library (scp41 -> scp45)
-│   ├── results/                     # Kết quả thực nghiệm xuất ra tự động
-│   │   ├── raw/                     # Tệp CSV kết quả từng lần chạy
-│   │   ├── conv/                    # Log hội tụ (<instance>_<alg>_seed<seed>_conv.csv)
-│   │   ├── solutions/               # Tệp lời giải tốt nhất (.sol)
-│   │   ├── summary/                 # Bảng tổng hợp thống kê & độ nhạy tham số
-│   │   └── figures/                 # Biểu đồ hội tụ và biểu đồ độ nhạy (.png)
-│   ├── main.py                      # Chạy đơn lẻ 1 thuật toán trên 1 thể hiện qua dòng lệnh
-│   ├── kiemtra.py                   # Chương trình kiểm tra tính hợp lệ lời giải
-│   ├── run_exact_benchmark.py       # Chạy đối chứng nghiệm chuẩn xác f*
-│   ├── run_experiments.py           # Chạy toàn bộ 330 lượt thực nghiệm chính
-│   ├── plot_results.py              # Tổng hợp bảng thống kê & vẽ biểu đồ hội tụ
-│   ├── ts_sensitivity.py            # Khảo sát độ nhạy tham số Tabu Search
-│   ├── ga_sensitivity.py            # Khảo sát độ nhạy tham số Genetic Algorithm
-│   ├── web_app.py                   # Giao diện web trực quan hóa quá trình tìm kiếm (Điểm cộng)
-│   └── requirements.txt             # Danh sách thư viện phụ thuộc
+├── README.md
+├── requirements.txt
+├── src/
+│   ├── algorithms/           # Các thuật toán
+│   ├── utils/                # Đọc dữ liệu, mô hình, kiểm tra nghiệm
+│   ├── templates/            # Giao diện HTML
+│   ├── main.py               # Kiểm tra B&B trên bài toán mẫu
+│   ├── web_app.py            # Ứng dụng Web
+│   ├── run_experiments.py    # Chạy thực nghiệm
+│   ├── plot_results.py       # Tổng hợp và vẽ biểu đồ
+│   ├── plot_sa_convergence.py
+│   └── sa_sensitivity_uth.py
+├── data/
+│   ├── vidu/                 # Bộ dữ liệu ví dụ
+│   ├── chuan/                # Bộ dữ liệu chuẩn OR-Library
+│   ├── tusinh/               # Bộ dữ liệu tự sinh
+│   ├── osm/                  # Dữ liệu đường giao thông OSM
+│   └── nodes/                # Nút giao và mô hình camera UTH
+├── results/
+│   ├── raw/                  # Kết quả thực nghiệm thô
+│   ├── conv/                 # Dữ liệu hội tụ CSV
+│   ├── solutions/            # Nghiệm .sol
+│   ├── figures/              # Biểu đồ PNG
+│   └── summary/              # Bảng thống kê tổng hợp
+└── report/                   # Báo cáo và slide
 ```
 
----
+Các tệp mã nguồn bổ sung phục vụ xử lý OSM, thực nghiệm và phân tích tham số cũng được đặt trong `src/`.
 
-## 3. Môi Trường Thực Nghiệm & Cài Đặt
+## 5. Cài đặt và hướng dẫn chạy
 
-* **Hệ điều hành:** Microsoft Windows 11 Home Single Language (64-bit)
-* **Phần cứng:** CPU AMD Ryzen 5 6600H with Radeon Graphics, RAM 16 GB (15,677 MB khả dụng)
-* **Ngôn ngữ & Trình thông dịch:** Python 3.15.1
-* **Thư viện phụ thuộc (`requirements.txt`):**
-  * `matplotlib >= 3.8.0` (vẽ biểu đồ hội tụ và phân tích độ nhạy)
-  * `flask >= 3.0.0` (tùy chọn, dùng cho giao diện trực quan hóa `web_app.py`)
-* **Lệnh cài đặt môi trường:**
-  ```bash
-  cd "Set Cover_UTH"
-  pip install -r requirements.txt
-  ```
+**Yêu cầu:** Python và các thư viện trong `requirements.txt`.
 
----
+Mở Terminal tại **thư mục gốc của repository**, sau đó cài đặt thư viện:
 
-## 4. Hướng Dẫn Chạy Đơn Lẻ & Kiểm Tra Lời Giải
-
-### 4.1. Chạy một thuật toán trên một thể hiện
-Cú pháp dòng lệnh chuẩn trong thư mục `Set Cover_UTH`:
 ```bash
-python main.py --instance <duong_dan_tep_vao> --alg <SA|TS|GA|EXACT|GREEDY> --seed <so_nguyen> --time_limit <giay> --out <tep_loi_giai_ra>
+python -m pip install -r requirements.txt
 ```
-**Ví dụ cụ thể chạy được ngay** (giải dữ liệu thực tế giao thông UTH bằng thuật toán Simulated Annealing với `seed=42`, ngân sách thời gian `3.0s`):
+
+### 5.1. Kiểm tra bài toán mẫu và Branch and Bound
+
 ```bash
-python main.py --instance data/osm/uth_setcover.txt --alg SA --seed 42 --time_limit 3.0 --out results/solutions/uth_setcover_SA_s42.sol
+python src/main.py
 ```
 
-### 4.2. Chạy chương trình kiểm tra lời giải (`kiemtra`)
-Cú pháp kiểm tra tính hợp lệ (ràng buộc bao phủ toàn bộ phần tử $U$ và đối chiếu tổng chi phí):
+Chương trình in tập camera được chọn, chi phí, tỷ lệ bao phủ, thời gian và kết quả kiểm tra tính hợp lệ. Trong bài toán mẫu đã kiểm thử, B&B tìm được tập camera `[1, 2, 4]`, chi phí **16**, độ phủ **100%**.
+
+### 5.2. Tổng hợp kết quả thực nghiệm và vẽ biểu đồ
+
 ```bash
-python kiemtra.py <tep_vao> <tep_loi_giai>
+python src/plot_results.py
 ```
-**Ví dụ cụ thể chạy được ngay:**
+
+Bảng tổng hợp được ghi vào `results/summary/benchmark_summary.csv`, các biểu đồ hội tụ được xuất vào `results/figures/`.
+
+### 5.3. Biểu đồ hội tụ SA trên dữ liệu nút giao UTH
+
 ```bash
-python kiemtra.py data/osm/uth_setcover.txt results/solutions/uth_setcover_SA_s42.sol
+python src/plot_sa_convergence.py
 ```
 
----
+Kết quả được lưu tại:
 
-## 5. Hướng Dẫn Chạy Toàn Bộ Thực Nghiệm & Tái Lập Kết Quả
+- `results/conv/sa_convergence_uth.csv`
+- `results/figures/sa_convergence_uth.png`
 
-* **Danh sách 10 hạt giống ngẫu nhiên (seeds) cố định:** `[42, 100, 2026, 7, 13, 21, 99, 123, 555, 888]`
-* **Tổng thời gian chạy ước tính cho toàn bộ bộ thực nghiệm:** Khoảng **12 – 15 phút** trên CPU AMD Ryzen 5 6600H.
+### 5.4. Chạy giao diện Web
 
-Thực hiện tuần tự các lệnh sau trong thư mục `Set Cover_UTH`:
-1. **Chạy đối chứng nghiệm tối ưu chính xác $f^*$ (Branch & Bound):** *(~15 giây)*
-   ```bash
-   python run_exact_benchmark.py
-   ```
-2. **Chạy toàn bộ thực nghiệm chính (11 thể hiện $\times$ 3 thuật toán $\times$ 10 seeds = 330 lượt chạy):** *(~10 phút)*
-   ```bash
-   python run_experiments.py
-   ```
-3. **Tổng hợp bảng số liệu thống kê (`Gap_b%`, `Gap_a%`, `Mean ± Std`) và sinh 11 biểu đồ hội tụ:** *(~10 giây)*
-   ```bash
-   python plot_results.py
-   ```
-4. **Chạy khảo sát độ nhạy tham số cho TS và GA (sinh 8 biểu đồ độ nhạy):** *(~3 phút)*
-   ```bash
-   python ts_sensitivity.py
-   python ga_sensitivity.py
-   ```
+```bash
+python src/web_app.py
+```
 
----
+Truy cập **http://127.0.0.1:5000** bằng trình duyệt. Giao diện cho phép chạy từng thuật toán, hiển thị kết quả lựa chọn camera và so sánh các phương pháp trên mô hình UTH.
 
-## 6. Tham Số Mặc Định Các Thuật Toán (Trùng Khớp Báo Cáo)
+> **Lưu ý:** Những chương trình chạy thực nghiệm hàng loạt hoặc khảo sát tham số có thể tạo lại/ghi đè các tệp trong `results/`. Nên sao lưu kết quả hiện có trước khi chạy lại toàn bộ thí nghiệm.
 
-| Thuật toán | Ký hiệu | Tham số chính | Giá trị mặc định |
-| :--- | :---: | :--- | :--- |
-| **Branch & Bound** | `EXACT` | Chiến lược phân nhánh & cắt tỉa | Cận dưới tham lam phân số, giới hạn thời gian `60s` |
-| **Greedy + Prune** | `GREEDY` | Tiêu chí chọn cột & hậu xử lý | $\min \frac{c_j}{|S_j \cap U_{\text{rem}}|}$ kết hợp khử cột dư thừa |
-| **Simulated Annealing** | `SA` | Nhiệt độ đầu $T_0$, hệ số nguội $\alpha$, ngân sách | $T_0$ tự động theo $\Delta_{\text{avg}}$, $\alpha = 0.99$, `1.0s` ($n \le 50$) / `5.0s` ($n > 50$) |
-| **Tabu Search** | `TS` | Độ dài danh sách cấm (`tabu_tenure`), vòng lặp tối đa | $\min(15, \max(2, \lfloor n/3 \rfloor))$, `max_iter = 50000` |
-| **Genetic Algorithm** | `GA` | Kích thước quần thể (`pop_size`), tỷ lệ đột biến $p_m$ | `pop_size = 50`, `mutation_rate = 0.05`, Tournament $k=3$ |
+## 6. Dữ liệu và phương pháp đánh giá
+
+Dự án sử dụng các nhóm dữ liệu:
+
+- **Ví dụ (`data/vidu/`)**: Kiểm tra cách đọc dữ liệu, thuật toán và tính hợp lệ của nghiệm.
+- **Chuẩn (`data/chuan/`)**: Các bộ `scp41`–`scp45` từ OR-Library.
+- **Tự sinh (`data/tusinh/`)**: Các trường hợp có quy mô khác nhau để khảo sát hiệu quả giải.
+- **UTH (`data/osm/`, `data/nodes/`)**: Dữ liệu mô phỏng mạng lưới giao thông, nút giao, vị trí camera và quan hệ bao phủ lấy từ quá trình xử lý OSM.
+
+Bộ kết quả thực nghiệm hiện có ghi nhận **330 lượt chạy** của **SA, GA và TS** trên **11 bộ dữ liệu**, với **10 seed** cho mỗi cặp thuật toán – bộ dữ liệu. Các tiêu chí đánh giá bao gồm chi phí nghiệm, tính hợp lệ và tỷ lệ bao phủ, thời gian thực thi, đặc điểm hội tụ và độ nhạy tham số.
+
+## 7. Kết quả minh họa
+
+Trên bộ dữ liệu mô hình **104 nút giao, 64 camera ứng viên** được dùng trong giao diện Web, một lần kiểm thử cho kết quả:
+
+| Phương pháp | Số camera | Tổng chi phí | Độ phủ |
+|---|---:|---:|---:|
+| Greedy | 17 | 87 | 100% |
+| First Improvement | 16 | 86 | 100% |
+| Best Improvement | 16 | 86 | 100% |
+| SA | 14 | 80 | 100% |
+| GA | 14 | 80 | 100% |
+| TS | 16 | 82 | 100% |
+
+Đây là **kết quả của một lần kiểm thử**, không phải cam kết rằng thuật toán luôn cho cùng kết quả hoặc chứng minh chi phí 80 là tối ưu toàn cục. Các thống kê đầy đủ và hình ảnh được lưu trong thư mục `results/`.
+
+## 8. Kết luận
+
+Dự án kết hợp mô hình Weighted Set Cover, các thuật toán giải chính xác và gần đúng, dữ liệu giao thông UTH, hệ thống thực nghiệm và giao diện trực quan. Kết quả giúp đánh giá sự khác biệt giữa các phương pháp lựa chọn camera theo chi phí, tỷ lệ bao phủ và hiệu quả tính toán, đồng thời cung cấp nền tảng để mở rộng bài toán sang các điều kiện triển khai thực tế.

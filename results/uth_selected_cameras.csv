@@ -1,0 +1,28 @@
+﻿camera_id,lat,lon,cost,road_name,highway
+C5,10.803978,106.71789695,7,Võ Oanh,tertiary
+C7,10.80322575,106.7196432,7,Võ Oanh,tertiary
+C10,10.80369675,106.714429,5,Hẻm 69/38 đường D2,residential
+C14,10.80689225,106.71914145,9,Ung Văn Khiêm,secondary
+C16,10.80595405,106.7205487,9,Ung Văn Khiêm,secondary
+C21,10.8033396,106.71640093,5,Hẻm 36 Nguyễn Gia Trí,residential
+C26,10.80199445,106.71549595,7,Nguyễn Gia Trí,tertiary
+C29,10.80122706,106.71421575,13,Điện Biên Phủ,trunk
+C30,10.80778865,106.71564655,5,Hẻm 60 Ung Văn Khiêm,residential
+C34,10.80159563,106.7198203,5,Hẻm 72 Nguyễn Văn Thương,residential
+C35,10.80259425,106.7178384,5,Hẻm 71 Nguyễn Văn Thương,residential
+C36,10.80593955,106.7131882,5,Hẻm 157 Nguyễn Gia Trí,residential
+C39,10.8053929,106.71580725,5,Hẻm 157 Nguyễn Gia Trí,residential
+C41,10.80573337,106.71411957,5,Hẻm 157 Nguyễn Gia Trí,residential
+C43,10.80054397,106.7156432,5,Hẻm 548 Điện Biên Phủ,residential
+C44,10.80442795,106.713348,5,Hẻm 441 Điện Biên Phủ,residential
+C47,10.80619855,106.7169973,5,Hẻm 168 Nguyễn Gia Trí,residential
+C49,10.8045393,106.7206107,5,Hẻm 224/7 Ung Văn Khiêm,residential
+C50,10.808283,106.7180157,5,Hẻm 97 Ung Văn Khiêm,residential
+C51,10.80396455,106.7195265,5,Hẻm 24 Võ Oanh,residential
+C52,10.8028164,106.72084623,5,Hẻm 176 Nguyễn Văn Thương,residential
+C57,10.80234255,106.7134516,5,Hẻm 441 Điện Biên Phủ,residential
+C58,10.8081908,106.7172328,5,Khong ten,residential
+C61,10.80548925,106.71852617,7,Đường D5,tertiary
+C62,10.80848619,106.7144668,9,Ung Văn Khiêm,secondary
+C63,10.80149,106.7181252,5,Khong ten,residential
+C64,10.80121169,106.71693014,5,Khong ten,residential
