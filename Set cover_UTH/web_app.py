@@ -11,6 +11,8 @@ from utils.validator import validate_solution
 from algorithms.greedy import greedy_set_cover
 from algorithms.local_search import hill_climbing_first, hill_climbing_best
 from algorithms.simulated_annealing import simulated_annealing
+from algorithms.genetic_algorithm import solve_genetic_algorithm
+from algorithms.tabu_search import solve_tabu_search
 
 BASE_DIR = Path(__file__).resolve().parent
 NODE_DIR = BASE_DIR / "data" / "nodes"
@@ -33,11 +35,18 @@ ALGORITHMS = {
     "first": "First Improvement",
     "best": "Best Improvement",
     "sa": "Simulated Annealing",
+    "ga": "Genetic Algorithm",
+    "ts": "Tabu Search",
 }
 DEFAULT_SA_PARAMS = {
     "temperature": 10.0,
     "cooling_rate": 0.99,
     "max_iterations": 5000,
+    "seed": 42,
+}
+
+DEFAULT_META_PARAMS = {
+    "time_limit": 2.0,
     "seed": 42,
 }
 
@@ -186,7 +195,59 @@ def read_sa_params():
     return params
 
 
-def execute_algorithm(model, algorithm, sa_params=None):
+def read_meta_params():
+    """Read the bounded time budget and seed for GA/Tabu Search."""
+    params = DEFAULT_META_PARAMS.copy()
+    if "time_limit" in request.args:
+        params["time_limit"] = float(request.args["time_limit"])
+    if "meta_seed" in request.args:
+        params["seed"] = int(request.args["meta_seed"])
+    elif "seed" in request.args:
+        params["seed"] = int(request.args["seed"])
+    if not math.isfinite(params["time_limit"]) or not 0.1 <= params["time_limit"] <= 30:
+        raise ValueError("Time limit phai trong khoang [0.1, 30] giay")
+    if not 0 <= params["seed"] <= 2147483647:
+        raise ValueError("Seed phai trong khoang [0, 2147483647]")
+    return params
+
+
+def solve_metaheuristic(model, algorithm, params):
+    """Convert the shared UTH 0-indexed model to the GA/TS solver API."""
+    args = (model.m, model.n, model.costs, model.rows, model.columns)
+    if algorithm == "ga":
+        result = solve_genetic_algorithm(
+            *args, time_limit=params["time_limit"],
+            pop_size=50, max_generations=1000,
+            seed=params["seed"], one_indexed_output=True,
+        )
+    elif algorithm == "ts":
+        result = solve_tabu_search(
+            *args, time_limit=params["time_limit"],
+            max_iter=50000, tabu_tenure=min(15, max(2, model.n // 3)),
+            seed=params["seed"], one_indexed_output=True,
+        )
+    else:
+        raise ValueError("Unknown metaheuristic")
+
+    # GA/TS return 1-indexed columns; the rest of the Web uses 0-indexed.
+    chosen = result.get("solution")
+    if not isinstance(chosen, (tuple, list, set)):
+        raise ValueError("Solver khong tra ve danh sach camera")
+    if any(type(idx) is not int or not 1 <= idx <= model.n for idx in chosen):
+        raise ValueError("Chi so camera tu GA/TS khong hop le")
+    if len(set(chosen)) != len(chosen):
+        raise ValueError("Solver tra ve camera trung lap")
+    solution = sorted(idx - 1 for idx in chosen)
+    valid, cost, message = validate_solution(validation_data(model), solution)
+    if not valid:
+        raise ValueError(f"Nghiem {algorithm.upper()} khong hop le: {message}")
+    reported = result.get("best_value")
+    if reported is None or not math.isclose(float(reported), float(cost), rel_tol=1e-8, abs_tol=1e-8):
+        raise ValueError("Chi phi do solver bao cao khong trung voi nghiem")
+    return solution
+
+
+def execute_algorithm(model, algorithm, sa_params=None, meta_params=None):
     greedy = greedy_set_cover(model)
     if algorithm == "greedy":
         return greedy
@@ -204,12 +265,14 @@ def execute_algorithm(model, algorithm, sa_params=None):
             max_iterations=params["max_iterations"],
             seed=params["seed"],
         )
+    if algorithm in ("ga", "ts"):
+        return solve_metaheuristic(model, algorithm, meta_params or DEFAULT_META_PARAMS)
     raise ValueError("Thuat toan khong duoc ho tro")
 
 
-def calculate_result(model, algorithm, sa_params=None):
+def calculate_result(model, algorithm, sa_params=None, meta_params=None):
     start = time.perf_counter()
-    solution = sorted(set(int(i) for i in execute_algorithm(model, algorithm, sa_params)))
+    solution = sorted(set(int(i) for i in execute_algorithm(model, algorithm, sa_params, meta_params)))
     elapsed = time.perf_counter() - start
     valid, cost, message = validate_solution(validation_data(model), solution)
     selected = [i + 1 for i in solution]
@@ -231,6 +294,8 @@ def calculate_result(model, algorithm, sa_params=None):
     }
     if algorithm == "sa":
         result["sa_parameters"] = (sa_params or DEFAULT_SA_PARAMS).copy()
+    if algorithm in ("ga", "ts"):
+        result["meta_parameters"] = (meta_params or DEFAULT_META_PARAMS).copy()
     return result
 
 
@@ -272,12 +337,13 @@ def run_algorithm(algorithm):
     if algorithm not in ALGORITHMS:
         return jsonify({"error": "Thuat toan khong duoc ho tro"}), 400
     try:
-        params = read_sa_params() if algorithm == "sa" else None
-    except (ValueError, TypeError, OverflowError):
-        return jsonify({"error": "Tham so SA khong hop le"}), 400
+        sa_params = read_sa_params() if algorithm == "sa" else None
+        meta_params = read_meta_params() if algorithm in ("ga", "ts") else None
+    except (ValueError, TypeError, OverflowError) as exc:
+        return jsonify({"error": str(exc)}), 400
     try:
         model = load_model()
-        result = calculate_result(model, algorithm, params)
+        result = calculate_result(model, algorithm, sa_params, meta_params)
         if not result["valid"]:
             return jsonify({"error": "Nghiem khong hop le", "message": result["message"]}), 422
         return jsonify(result)
@@ -290,13 +356,18 @@ def run_algorithm(algorithm):
 def compare_algorithms():
     try:
         params = read_sa_params()
-    except (ValueError, TypeError, OverflowError):
-        return jsonify({"error": "Tham so SA khong hop le"}), 400
+        meta_params = read_meta_params()
+    except (ValueError, TypeError, OverflowError) as exc:
+        return jsonify({"error": str(exc)}), 400
     try:
         model = load_model()
         results = []
         for algorithm in ALGORITHMS:
-            result = calculate_result(model, algorithm, params if algorithm == "sa" else None)
+            result = calculate_result(
+                model, algorithm,
+                params if algorithm == "sa" else None,
+                meta_params if algorithm in ("ga", "ts") else None,
+            )
             if not result["valid"]:
                 return jsonify({"error": f"Nghiem khong hop le: {algorithm}"}), 422
             results.append(result)
