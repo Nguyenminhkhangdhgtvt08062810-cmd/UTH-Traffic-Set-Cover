@@ -1,0 +1,15 @@
+﻿Dataset,Source,Rows,Columns,Coverage_Relations,Density_Percent,Min_Cost,Max_Cost,Total_Cost
+scp41.txt,orlib,200,1000,4009,2.0,1,100,50050
+scp42.txt,orlib,200,1000,3982,1.99,1,100,49830
+scp43.txt,orlib,200,1000,3984,1.99,1,100,50176
+scp44.txt,orlib,200,1000,4009,2.0,1,100,50264
+scp45.txt,orlib,200,1000,3939,1.97,1,100,49790
+sc_10_10_s101.txt,generated,10,10,32,32.0,2,20,125
+sc_10_10_s102.txt,generated,10,10,36,36.0,5,20,130
+sc_10_10_s103.txt,generated,10,10,29,29.0,3,20,108
+sc_20_20_s101.txt,generated,20,20,58,14.5,2,20,212
+sc_20_20_s102.txt,generated,20,20,58,14.5,2,20,275
+sc_20_20_s103.txt,generated,20,20,69,17.25,1,20,183
+sc_30_30_s101.txt,generated,30,30,92,10.22,2,20,333
+sc_30_30_s102.txt,generated,30,30,95,10.56,2,20,385
+sc_30_30_s103.txt,generated,30,30,88,9.78,1,20,318
