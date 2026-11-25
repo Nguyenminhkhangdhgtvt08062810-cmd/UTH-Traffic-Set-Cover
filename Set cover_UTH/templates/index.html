@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -151,7 +150,7 @@ select:focus, input:focus {
     margin-bottom: 14px;
 }
 
-#saSettings[hidden] {
+#saSettings[hidden], #metaSettings[hidden] {
     display: none;
 }
 
@@ -449,6 +448,8 @@ tbody tr:hover { background: #f6f9fb; }
         <option value="first">First Improvement</option>
         <option value="best">Best Improvement</option>
         <option value="sa">Simulated Annealing</option>
+        <option value="ga">Genetic Algorithm (GA)</option>
+        <option value="ts">Tabu Search (TS)</option>
     </select>
 
     <!-- GIOI THIEU THUAT TOAN -->
@@ -526,6 +527,18 @@ tbody tr:hover { background: #f6f9fb; }
             Thay đổi các tham số để khảo sát chất lượng
             nghiệm và thời gian thực thi của SA.
         </p>
+    </div>
+
+    <div id="metaSettings" class="sidebar-section" hidden>
+        <h3>Tham số GA / Tabu Search</h3>
+        <label class="field-label" for="metaTimeLimit">Giới hạn thời gian (giây)</label>
+        <input class="parameter-input" type="number" id="metaTimeLimit"
+               min="0.1" max="30" step="0.1" value="2">
+        <label class="field-label" for="metaSeed">Random seed</label>
+        <input class="parameter-input" type="number" id="metaSeed"
+               min="0" max="2147483647" step="1" value="42">
+        <p class="help-text">GA: quần thể 50, tối đa 1000 thế hệ. TS: tối đa 50000 vòng.
+        Mỗi lần chạy sử dụng cùng giới hạn thời gian đã chọn.</p>
     </div>
 
     <button class="run-button"
@@ -646,7 +659,7 @@ tbody tr:hover { background: #f6f9fb; }
             <button id="compareButton"
                     class="action-button"
                     onclick="compareAlgorithms()">
-                So sánh 4 thuật toán
+                So sánh 6 thuật toán
             </button>
         </div>
 
@@ -673,7 +686,7 @@ tbody tr:hover { background: #f6f9fb; }
         </div>
 
         <p id="comparisonMessage" class="panel-message">
-            Nhấn So sánh 4 thuật toán để bắt đầu.
+            Nhấn So sánh 6 thuật toán để bắt đầu.
         </p>
     </section>
 
@@ -809,6 +822,20 @@ const algorithmDescriptions = {
         role:
             "Hạn chế mắc kẹt tại cực trị địa phương " +
             "và tìm phương án đặt camera có tổng chi phí thấp."
+    },
+    ga: {
+        type: "Metaheuristic quần thể",
+        title: "Genetic Algorithm (GA)",
+        description: "Thuật toán di truyền tìm phương án đặt camera bằng quần thể nghiệm.",
+        principle: "Khởi tạo quần thể, lai ghép, đột biến và sửa chữa nghiệm để bảo đảm độ phủ.",
+        role: "Tìm nghiệm có chi phí thấp bằng tìm kiếm dựa trên quần thể."
+    },
+    ts: {
+        type: "Metaheuristic một nghiệm",
+        title: "Tabu Search (TS)",
+        description: "Tìm kiếm Tabu cải thiện phương án đặt camera bằng cách khám phá lân cận.",
+        principle: "Sử dụng danh sách cấm Tabu và tiêu chí khát vọng để hạn chế lặp lại.",
+        role: "Khám phá không gian nghiệm và tìm phương án có tổng chi phí thấp."
     }
 };
 
@@ -900,6 +927,8 @@ function updateSASettings() {
 
     document.getElementById("saSettings").hidden =
         algorithm !== "sa";
+    document.getElementById("metaSettings").hidden =
+        algorithm !== "ga" && algorithm !== "ts";
 }
 
 function getSAParameters() {
@@ -959,6 +988,18 @@ function getSAParameters() {
         max_iterations: maxIterations,
         seed
     };
+}
+
+function getMetaParameters() {
+    const timeLimit = Number(document.getElementById("metaTimeLimit").value);
+    const seed = Number(document.getElementById("metaSeed").value);
+    if (!Number.isFinite(timeLimit) || timeLimit < 0.1 || timeLimit > 30) {
+        throw new Error("Giới hạn thời gian phải từ 0.1 đến 30 giây.");
+    }
+    if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647) {
+        throw new Error("Random seed GA/TS không hợp lệ.");
+    }
+    return { time_limit: timeLimit, seed };
 }
 
 function createSAQuery(params) {
@@ -1123,6 +1164,9 @@ async function runAlgorithm() {
         if (algorithm === "sa") {
             params = getSAParameters();
             url += "?" + createSAQuery(params);
+        } else if (algorithm === "ga" || algorithm === "ts") {
+            params = getMetaParameters();
+            url += "?" + createSAQuery(params);
         }
 
         const response = await fetch(url);
@@ -1165,6 +1209,10 @@ async function runAlgorithm() {
                 " · T=" + params.temperature +
                 " · α=" + params.cooling_rate +
                 " · Seed=" + params.seed;
+        } else if (algorithm === "ga" || algorithm === "ts") {
+            message.textContent +=
+                " · Giới hạn=" + params.time_limit + "s" +
+                " · Seed=" + params.seed;
         }
 
         refreshMap();
@@ -1202,9 +1250,17 @@ async function compareAlgorithms() {
 
     try {
         const params = getSAParameters();
+        const metaParams = getMetaParameters();
 
         const url =
-            "/api/compare?" + createSAQuery(params);
+            "/api/compare?" + createSAQuery({
+                temperature: params.temperature,
+                cooling_rate: params.cooling_rate,
+                max_iterations: params.max_iterations,
+                time_limit: metaParams.time_limit,
+                seed: params.seed,
+                meta_seed: metaParams.seed
+            });
 
         const response = await fetch(url);
         const data = await response.json();
@@ -1257,12 +1313,14 @@ async function compareAlgorithms() {
         });
 
         message.textContent =
-            "Đã so sánh 4 thuật toán. " +
+            "Đã so sánh " + results.length + " thuật toán. " +
             "SA sử dụng T=" + params.temperature +
             ", α=" + params.cooling_rate +
             ", vòng lặp=" + params.max_iterations +
             ", seed=" + params.seed +
-            ". Hàng tô màu có chi phí thấp nhất.";
+            ". GA/TS có giới hạn " + metaParams.time_limit +
+            " giây mỗi thuật toán (seed=" + metaParams.seed +
+            "). Hàng tô màu có chi phí thấp nhất.";
 
     } catch (error) {
         message.classList.add("error");
@@ -1270,7 +1328,7 @@ async function compareAlgorithms() {
 
     } finally {
         button.disabled = false;
-        button.textContent = "So sánh 4 thuật toán";
+        button.textContent = "So sánh 6 thuật toán";
     }
 }
 
@@ -1538,14 +1596,15 @@ document.getElementById("cameraSearch")
     "temperature",
     "coolingRate",
     "maxIterations",
-    "seed"
+    "seed",
+    "metaTimeLimit",
+    "metaSeed"
 ].forEach(id => {
     document.getElementById(id)
         .addEventListener("change", function () {
-            if (currentAlgorithm === "sa") {
+            if (currentAlgorithm === "sa" || currentAlgorithm === "ga" || currentAlgorithm === "ts") {
                 document.getElementById("message").textContent =
-                    "Tham số SA đã thay đổi. " +
-                    "Nhấn Chạy thuật toán để tính lại.";
+                    "Tham số đã thay đổi. Nhấn Chạy thuật toán để tính lại.";
             }
         });
 });
